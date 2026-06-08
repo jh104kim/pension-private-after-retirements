@@ -221,7 +221,7 @@ export default function PensionInput() {
         <KpiCard title="총 적립금 (세제적격)" value="5.1억원"  sub="DB 3.9억+IRP 6천+저축 6천" />
         <KpiCard title="월 수령액 (65세)"     value="828만원"  sub="세전, 연금만"   highlight />
         <KpiCard title="세제적격 계좌"         value="3개"      sub="1.5억 적립"    />
-        <KpiCard title="세제비적격 계좌"       value="6개"      sub="비과세 수령"   />
+        <KpiCard title="자녀 양도 예정"       value="87만원"   sub="우리아이 1·2 별도" />
       </div>
 
       {/* 본문 — flex-1, 2분할 */}
@@ -263,13 +263,13 @@ export default function PensionInput() {
 ```jsx
 const PENSION_ROWS = [
   { type: 'public',       institution: '국민연금공단', name: '노령연금',       monthly: 189,  age: '65세~',    taxType: 'public'       },
-  { type: 'qualified',    institution: '삼성증권',    name: 'DB 채권형',      monthly: 77,   age: '61~74세',  taxType: 'qualified', balance: '3.9억' },
-  { type: 'nonqualified', institution: '삼성생명',    name: '이율보증형',     monthly: 207,  age: '55~74세',  taxType: 'nontax'       },
-  { type: 'nonqualified', institution: '삼성생명',    name: '노후적립',       monthly: 115,  age: '55~73세',  taxType: 'nontax'       },
-  { type: 'nonqualified', institution: '삼성생명',    name: '인덱스Up변액',   monthly: 98,   age: '65~89세',  taxType: 'nontax'       },
-  { type: 'nonqualified', institution: '삼성생명',    name: '우리아이변액1',  monthly: 45,   age: '60~89세',  taxType: 'nontax'       },
-  { type: 'nonqualified', institution: '삼성생명',    name: '스마트Top변액',  monthly: 117,  age: '65~89세',  taxType: 'nontax'       },
-  { type: 'nonqualified', institution: '삼성생명',    name: '우리아이변액2',  monthly: 42,   age: '60~89세',  taxType: 'nontax'       },
+  { type: 'qualified',    institution: '삼성증권',    name: 'DB 채권형',      monthly: 77,   age: '61~80세',  taxType: 'qualified', balance: '확인 필요' },
+  { type: 'qualified',    institution: '삼성생명',    name: '이율보증형(DB)', monthly: 207,  age: '55~74세',  taxType: 'qualified'   },
+  { type: 'nonqualified', institution: '삼성생명',    name: '노후적립',       monthly: 115,  age: '55~74세',  taxType: 'nontax'       },
+  { type: 'nonqualified', institution: '삼성생명',    name: '인덱스Up변액',   monthly: 98,   age: '65~90세',  taxType: 'nontax'       },
+  { type: 'child',        institution: '삼성생명',    name: '우리아이변액1',  monthly: 45,   age: '60~90세',  taxType: 'child'        },
+  { type: 'nonqualified', institution: '삼성생명',    name: '스마트Top변액',  monthly: 117,  age: '65~90세',  taxType: 'nontax'       },
+  { type: 'child',        institution: '삼성생명',    name: '우리아이변액2',  monthly: 42,   age: '60~90세',  taxType: 'child'        },
   { type: 'qualified',    institution: '삼성생명',    name: '연금저축골드',   monthly: 20,   age: '56~89세',  taxType: 'qualified', balance: '6천만' },
   { type: 'qualified',    institution: '(별도)',      name: 'IRP',           monthly: null, age: '미정',     taxType: 'qualified', balance: '6천만' },
 ]

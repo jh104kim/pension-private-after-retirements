@@ -145,7 +145,7 @@ export default function TaxScenario() {
     const rentalAnnual = income.rental * 12   // 千원/年
     const realEstate   = assets.realEstate    // 千원
 
-    // DB 퇴직소득세: 수령 기간 20년 (61~80세), 천원/年
+    // DB 퇴직소득세: DB채권형 + 이율보증형(DB) 수령 구간 추정, 천원/年
     const DB_TAX_ANNUAL = dbRetirementTax(390_000, 30, 20)
 
     return SCENARIO_IDS.map(id => {
@@ -166,13 +166,14 @@ export default function TaxScenario() {
           ? 9_620 : 0
         const qualifiedAnnual = savingsAnnual + irpAnnual  // 천원/年
 
-        // ── 세제비적격 합산 (천원/年) ────────────────────────
+        // ── 본인 비과세 합산 (천원/年): 우리아이 1·2는 자녀 양도 예정으로 제외
         const nontaxAnnual =
-          PENSION_ANNUAL.guaranteed[i] + PENSION_ANNUAL.nohup[i] +
-          PENSION_ANNUAL.indexUp[i]    + PENSION_ANNUAL.ourChild1[i] +
-          PENSION_ANNUAL.smartTop[i]   + PENSION_ANNUAL.ourChild2[i]
+          PENSION_ANNUAL.nohup[i] +
+          PENSION_ANNUAL.indexUp[i] +
+          PENSION_ANNUAL.smartTop[i]
 
-        const dbAnnual = PENSION_ANNUAL.db[i]
+        // 이율보증형은 퇴직연금 DB 운용상품으로 재분류
+        const dbAnnual = PENSION_ANNUAL.db[i] + PENSION_ANNUAL.guaranteed[i]
 
         // ── 세전 월수령액 (만원/月) ──────────────────────────
         const grossMonthly = Math.round(
@@ -196,8 +197,8 @@ export default function TaxScenario() {
         const incomeTaxKw     = comprehensiveIncomeTax(nationalTaxable + rentalTaxable)
         const incomeTaxManwon = Math.round(incomeTaxKw / 10 / 12)
 
-        // ── DB 퇴직소득세 (61~80세, 천원/年 → 만원/月) ───────
-        const dbTaxKw     = age >= 61 && age <= 80 ? DB_TAX_ANNUAL : 0
+        // ── DB 퇴직소득세 (DB성 수령액 존재 시, 천원/年 → 만원/月) ───────
+        const dbTaxKw     = dbAnnual > 0 ? DB_TAX_ANNUAL : 0
         const dbTaxManwon = Math.round(dbTaxKw / 10 / 12)
 
         // ── 세후 ──────────────────────────────────────────────

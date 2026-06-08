@@ -1,5 +1,12 @@
 // 데이터 검증 스크립트 — node verify-data.js
-import { PENSION_ANNUAL, AGES, PENSION_TOTAL, getCashFlowByAge } from './src/data/pensionData.js'
+import {
+  PENSION_ANNUAL,
+  AGES,
+  PENSION_TOTAL,
+  MY_PENSION_TOTAL,
+  CHILD_TRANSFER_TOTAL,
+  getCashFlowByAge,
+} from './src/data/pensionData.js'
 
 const EXPECTED_SUMS = {
   national:   850759,
@@ -52,13 +59,41 @@ if (mismatch !== -1) {
   console.log(`✅ PENSION_TOTAL matches sum of all 9 arrays`)
 }
 
-// 4. getCashFlowByAge 샘플
+// 4. 본인 합계 / 자녀 양도 예정 합계 일치
+const manualChildTransfer = AGES.map((_, i) =>
+  PENSION_ANNUAL.ourChild1[i] + PENSION_ANNUAL.ourChild2[i]
+)
+const childMismatch = CHILD_TRANSFER_TOTAL.findIndex((v, i) => v !== manualChildTransfer[i])
+if (childMismatch !== -1) {
+  console.error(`❌ CHILD_TRANSFER_TOTAL[${childMismatch}] = ${CHILD_TRANSFER_TOTAL[childMismatch]} vs manual ${manualChildTransfer[childMismatch]}`)
+  ok = false
+} else {
+  console.log(`✅ CHILD_TRANSFER_TOTAL matches ourChild1 + ourChild2`)
+}
+
+const myMismatch = MY_PENSION_TOTAL.findIndex((v, i) => v !== PENSION_TOTAL[i] - CHILD_TRANSFER_TOTAL[i])
+if (myMismatch !== -1) {
+  console.error(`❌ MY_PENSION_TOTAL[${myMismatch}] = ${MY_PENSION_TOTAL[myMismatch]} vs source ${PENSION_TOTAL[myMismatch] - CHILD_TRANSFER_TOTAL[myMismatch]}`)
+  ok = false
+} else {
+  console.log(`✅ MY_PENSION_TOTAL excludes child-transfer products`)
+}
+
+// 5. getCashFlowByAge 샘플
 const cf = getCashFlowByAge()
 if (cf.length !== 36 || cf[0].age !== 55 || cf[35].age !== 90) {
   console.error(`❌ getCashFlowByAge() output invalid`)
   ok = false
 } else {
   console.log(`✅ getCashFlowByAge() returns 36 rows, age 55~90`)
+}
+
+const age65 = cf.find(row => row.age === 65)
+if (!age65 || age65.total !== age65.excelTotal - age65.childTransfer) {
+  console.error(`❌ age65 total should exclude childTransfer`)
+  ok = false
+} else {
+  console.log(`✅ cashFlowByAge total excludes childTransfer; childTransfer is separate`)
 }
 
 console.log(ok ? '\n✅ 모든 검증 통과' : '\n❌ 검증 실패 있음')

@@ -25,20 +25,23 @@ export function PensionProvider({ children }) {
         smartTop:   Math.round(PENSION_ANNUAL.smartTop[i]   / 10 / 12),
         ourChild2:  Math.round(PENSION_ANNUAL.ourChild2[i]  / 10 / 12),
       }
-      const pensionTotal = Object.values(pensionItems).reduce((s, v) => s + v, 0)
+      const dbTotal = pensionItems.db + pensionItems.guaranteed
+      const ownNontax = pensionItems.nohup + pensionItems.indexUp + pensionItems.smartTop
+      const childTransfer = pensionItems.ourChild1 + pensionItems.ourChild2
+      const pensionTotal = pensionItems.national + dbTotal + pensionItems.savings + ownNontax
+      const excelPensionTotal = pensionTotal + childTransfer
       const rentalMonthly = Math.round(income.rental / 10)  // 천원/월 → 만원/월
-
-      // 세제비적격 합산
-      const nontax = pensionItems.guaranteed + pensionItems.nohup
-        + pensionItems.indexUp + pensionItems.ourChild1
-        + pensionItems.smartTop + pensionItems.ourChild2
 
       return {
         age,
         ...pensionItems,
-        nontax,
+        dbTotal,
+        nontax: ownNontax,
+        ownNontax,
+        childTransfer,
         rental: rentalMonthly,
         total:  pensionTotal + rentalMonthly,
+        excelTotal: excelPensionTotal + rentalMonthly,
       }
     }),
   [income])

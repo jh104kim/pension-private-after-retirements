@@ -12,6 +12,7 @@ export const CHART_COLORS = {
   rental:    '#06B6D4',  // 임대소득  — cyan-500
   deduct:    '#F87171',  // 세금/건보 — red-400
   labor:     '#84CC16',  // 근로소득  — lime-500
+  child:     '#EC4899',  // 자녀 양도 예정 — pink-500
 }
 
 // 범례용 한글 라벨
@@ -24,4 +25,5 @@ export const CHART_LABELS = {
   rental:    '임대소득',
   deduct:    '세금·건보료',
   labor:     '근로소득',
+  child:     '자녀 양도 예정',
 }

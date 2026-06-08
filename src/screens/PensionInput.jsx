@@ -19,6 +19,7 @@ const TAX_BADGE_CONFIG = {
   public:    { label: '공적연금', cls: 'bg-blue-100   text-blue-700   border-blue-200'   },
   qualified: { label: '세제적격', cls: 'bg-violet-100 text-violet-700 border-violet-200' },
   nontax:    { label: '비 과 세', cls: 'bg-green-100  text-green-700  border-green-200'  },
+  child:     { label: '자녀양도', cls: 'bg-pink-100   text-pink-700   border-pink-200'   },
 }
 function TaxBadge({ type }) {
   const { label, cls } = TAX_BADGE_CONFIG[type]
@@ -49,17 +50,17 @@ function KpiCard({ title, value, sub, highlight = false }) {
 
 // ── 연금 계좌 메타 (정적 — 수령 기간·기관·세제 구분) ──────────
 // 사용자 요구사항 반영 수령 기간:
-//   DB퇴직연금: 61~80세 | nohup: 55~74세
-//   indexUp·smartTop: 65~90세 | ourChild1·ourChild2: 60~90세
+//   DB채권형: 61~80세 | 이율보증형(DB): 55~74세 | nohup: 55~74세
+//   indexUp·smartTop: 65~90세 | ourChild1·ourChild2: 60~90세(자녀 양도 예정)
 const PENSION_META = [
   { institution: '국민연금공단', name: '노령연금',    key: 'national',   age: '65세~',   taxType: 'public' },
-  { institution: '삼성증권',    name: 'DB 채권형',   key: 'db',         age: '61~80세', taxType: 'qualified', balance: '3.9억' },
-  { institution: '삼성생명',    name: '이율보증형',   key: 'guaranteed', age: '55~74세', taxType: 'nontax' },
+  { institution: '삼성증권',    name: 'DB 채권형',   key: 'db',         age: '61~80세', taxType: 'qualified', balance: '확인 필요' },
+  { institution: '삼성생명',    name: '이율보증형(DB)', key: 'guaranteed', age: '55~74세', taxType: 'qualified' },
   { institution: '삼성생명',    name: '노후적립',    key: 'nohup',      age: '55~74세', taxType: 'nontax' },
   { institution: '삼성생명',    name: '인덱스Up',    key: 'indexUp',    age: '65~90세', taxType: 'nontax' },
-  { institution: '삼성생명',    name: '우리아이 1',  key: 'ourChild1',  age: '60~90세', taxType: 'nontax' },
+  { institution: '삼성생명',    name: '우리아이 1',  key: 'ourChild1',  age: '60~90세', taxType: 'child' },
   { institution: '삼성생명',    name: '스마트Top',   key: 'smartTop',   age: '65~90세', taxType: 'nontax' },
-  { institution: '삼성생명',    name: '우리아이 2',  key: 'ourChild2',  age: '60~90세', taxType: 'nontax' },
+  { institution: '삼성생명',    name: '우리아이 2',  key: 'ourChild2',  age: '60~90세', taxType: 'child' },
   { institution: '삼성생명',    name: '연금저축골드', key: 'savings',    age: '56~90세', taxType: 'qualified', balance: '6천만' },
   { institution: '(별도)',      name: 'IRP',         key: null,         age: '미정',    taxType: 'qualified', balance: '6천만' },
 ]
@@ -135,9 +136,9 @@ function PensionPieChart({ row65 }) {
   const pensionTotal = (row65.total ?? 0) - (row65.rental ?? 0)
 
   const data = useMemo(() => [
-    { name: '세제비적격(비과세)', value: row65.nontax   ?? 0, color: CHART_COLORS.nontax   },
+    { name: '본인 비과세',        value: row65.nontax   ?? 0, color: CHART_COLORS.nontax   },
     { name: '국민연금',          value: row65.national ?? 0, color: CHART_COLORS.national },
-    { name: 'DB퇴직연금',        value: row65.db       ?? 0, color: CHART_COLORS.db       },
+    { name: 'DB퇴직연금',        value: row65.dbTotal  ?? 0, color: CHART_COLORS.db       },
     { name: '연금저축',          value: row65.savings  ?? 0, color: CHART_COLORS.savings  },
   ], [row65])
 
@@ -181,14 +182,14 @@ function PensionPieChart({ row65 }) {
 
 // ── 수령 시작 타임라인 ────────────────────────────────────────
 // 수령 기간 반영:
-//   이율보증형·노후적립: 55~74세 | 연금저축: 56~90세
-//   우리아이 1·2: 60~90세 | DB퇴직연금: 61~80세 | 국민연금·변액4종: 65~90세
+//   이율보증형(DB)·노후적립: 55~74세 | 연금저축: 56~90세
+//   우리아이 1·2: 60~90세(자녀 양도 예정) | DB채권형: 61~80세 | 국민연금·본인 변액: 65~90세
 const TIMELINE_ENTRIES = [
-  { label: '이율보증형·노후적립', start: 55, end: 74, color: CHART_COLORS.nontax   },
+  { label: '이율보증형(DB)·노후적립', start: 55, end: 74, color: CHART_COLORS.db },
   { label: '연금저축',           start: 56, end: 90, color: CHART_COLORS.savings  },
-  { label: '우리아이 1·2',       start: 60, end: 90, color: CHART_COLORS.nontax   },
-  { label: 'DB퇴직연금',         start: 61, end: 80, color: CHART_COLORS.db       },
-  { label: '국민연금·변액4종',    start: 65, end: 90, color: CHART_COLORS.national },
+  { label: '우리아이 1·2(자녀)', start: 60, end: 90, color: CHART_COLORS.child    },
+  { label: 'DB채권형',           start: 61, end: 80, color: CHART_COLORS.db       },
+  { label: '국민연금·본인 변액',  start: 65, end: 90, color: CHART_COLORS.national },
 ]
 const AGE_MIN   = 55
 const AGE_RANGE = 35  // 55 → 90
@@ -251,8 +252,9 @@ export default function PensionInput() {
                 + (balances?.savings ?? 60_000)
   const totalOkText = `${(totalKw / 100_000).toFixed(1)}억원`
 
-  /* KPI: 65세 연금 월 수령 (임대소득 제외) */
+  /* KPI: 65세 본인 연금 월 수령 (임대소득·자녀양도 제외) */
   const pensionAt65 = (row65.total ?? 0) - (row65.rental ?? 0)
+  const childAt65 = row65.childTransfer ?? 0
 
   return (
     <div className="h-full p-6 flex flex-col gap-4">
@@ -265,20 +267,20 @@ export default function PensionInput() {
           sub="DB 3.9억 · IRP 6천 · 연금저축 6천"
         />
         <KpiCard
-          title="월 수령액 (65세 기준)"
+          title="본인 월 수령액 (65세)"
           value={`${pensionAt65.toLocaleString('ko-KR')}만원`}
-          sub="9개 연금 합산 · 세전 · 임대 제외"
+          sub="우리아이 1·2 제외 · 세전"
           highlight
         />
         <KpiCard
-          title="세제적격 계좌"
-          value="3개"
-          sub="DB퇴직 · IRP · 연금저축"
+          title="자녀 양도 예정 (65세)"
+          value={`${childAt65.toLocaleString('ko-KR')}만원`}
+          sub="우리아이 1·2 별도 표기"
         />
         <KpiCard
-          title="세제비적격 (비과세)"
-          value="6개"
-          sub="이율보증형 · 노후적립 · 변액4종"
+          title="본인 비과세 계좌"
+          value="3개"
+          sub="노후적립 · 인덱스Up · 스마트Top"
         />
       </div>
 

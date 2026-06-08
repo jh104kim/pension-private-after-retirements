@@ -23,8 +23,8 @@ export const national = [
    40514, 41770, 43065, 44400, 45776, 47195,
 ]
 
-// ─── 세제적격 ────────────────────────────────────────────────
-/** DB퇴직연금 삼성증권 채권형 — 61세(i=6)~80세(i=25), 20년 수령 */
+// ─── 세제적격 / 퇴직연금성 상품 ──────────────────────────────
+/** DB퇴직연금 삼성증권 채권형(국고채 등 채권 운용상품 추정) — 61세(i=6)~80세(i=25), 20년 수령 */
 export const db = [
        0,     0,     0,     0,     0,     0,  9257,  9257,  9257,  9257,
     9257,  9257,  9257,  9257,  9257,  9257,  9257,  9257,  9257,  9257,
@@ -40,8 +40,7 @@ export const savings = [
     2378,  2378,  2378,  2378,  2378,  2378,
 ]
 
-// ─── 세제비적격 (10년+ 유지 → 비과세) ────────────────────────
-/** 이율보증형(5년) 외 44건 삼성생명 — 55세(i=0)~74세(i=19) */
+/** 삼성생명 이율보증형(5년) 외 44건 — 퇴직연금 DB 운용상품으로 재분류, 55세(i=0)~74세(i=19) */
 export const guaranteed = [
    24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834,
    24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834, 24834,
@@ -102,9 +101,23 @@ export const PENSION_ANNUAL = {
   ourChild2,
 }
 
-/** 나이별 9개 상품 합산 (천원/년, 임대소득 제외) */
+export const DB_RETIREMENT_KEYS = ['db', 'guaranteed']
+export const OWN_NONTAX_KEYS = ['nohup', 'indexUp', 'smartTop']
+export const CHILD_TRANSFER_KEYS = ['ourChild1', 'ourChild2']
+
+/** 나이별 원천 9개 상품 합산 (천원/년, 임대소득 제외, 엑셀 검증용) */
 export const PENSION_TOTAL = AGES.map((_, i) =>
   Object.values(PENSION_ANNUAL).reduce((sum, arr) => sum + arr[i], 0)
+)
+
+/** 나이별 자녀 양도 예정 연금 합산 (천원/년, 우리아이 1·2) */
+export const CHILD_TRANSFER_TOTAL = AGES.map((_, i) =>
+  CHILD_TRANSFER_KEYS.reduce((sum, key) => sum + PENSION_ANNUAL[key][i], 0)
+)
+
+/** 나이별 본인 연금 합산 (천원/년, 우리아이 1·2 제외) */
+export const MY_PENSION_TOTAL = AGES.map((_, i) =>
+  PENSION_TOTAL[i] - CHILD_TRANSFER_TOTAL[i]
 )
 
 /**
@@ -126,6 +139,10 @@ export function getCashFlowByAge() {
     ourChild1:  Math.round(ourChild1[i]  / 10 / 12),
     smartTop:   Math.round(smartTop[i]   / 10 / 12),
     ourChild2:  Math.round(ourChild2[i]  / 10 / 12),
-    total:      Math.round(PENSION_TOTAL[i] / 10 / 12),
+    dbTotal:    Math.round((db[i] + guaranteed[i]) / 10 / 12),
+    ownNontax:  Math.round((nohup[i] + indexUp[i] + smartTop[i]) / 10 / 12),
+    childTransfer: Math.round(CHILD_TRANSFER_TOTAL[i] / 10 / 12),
+    total:      Math.round(MY_PENSION_TOTAL[i] / 10 / 12),
+    excelTotal: Math.round(PENSION_TOTAL[i] / 10 / 12),
   }))
 }

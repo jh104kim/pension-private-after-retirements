@@ -14,18 +14,18 @@ import { CHART_COLORS } from '@/utils/chartColors'
 import { cn } from '@/lib/utils'
 
 // ── 상수 ─────────────────────────────────────────────────────────────
-const BAR_KEYS   = ['nontax', 'savings', 'db', 'national', 'rental']
+const BAR_KEYS   = ['nontax', 'savings', 'dbTotal', 'national', 'rental']
 const BAR_LABELS = {
-  nontax:   '변액·개인(비과세)',
+  nontax:   '본인 변액·개인(비과세)',
   savings:  '연금저축',
-  db:       'DB퇴직연금',
+  dbTotal:  'DB퇴직연금(이율보증형 포함)',
   national: '국민연금',
   rental:   '임대소득',
 }
 const BAR_COLORS = {
   nontax:   CHART_COLORS.nontax,
   savings:  CHART_COLORS.savings,
-  db:       CHART_COLORS.db,
+  dbTotal:  CHART_COLORS.db,
   national: CHART_COLORS.national,
   rental:   CHART_COLORS.rental,
 }
@@ -58,8 +58,17 @@ function PensionTooltip({ active, payload, label }) {
         </div>
       ))}
       <Separator className="my-1.5" />
+      {payload[0]?.payload?.childTransfer > 0 && (
+        <div className="flex justify-between gap-4 py-0.5" style={{ color: CHART_COLORS.child }}>
+          <span>자녀 양도 예정</span>
+          <span className="font-medium tabular-nums">
+            {Math.round(payload[0].payload.childTransfer).toLocaleString('ko-KR')}만
+          </span>
+        </div>
+      )}
+      {payload[0]?.payload?.childTransfer > 0 && <Separator className="my-1.5" />}
       <div className="flex justify-between font-semibold">
-        <span>합계 (세전)</span>
+        <span>본인 합계 (세전)</span>
         <span className="tabular-nums">{Math.round(grossTotal).toLocaleString('ko-KR')}만원</span>
       </div>
       {netEntry?.value != null && (
@@ -121,7 +130,7 @@ export default function CashFlowDashboard() {
   const chartData = useMemo(() =>
     cashFlowByAge.map((row, i) => {
       // 1) 사적연금 분리과세 (5.5%, 지방세 포함)
-      const qualifiedTaxMonthly = (row.db + row.savings) * 0.055
+      const qualifiedTaxMonthly = (row.dbTotal + row.savings) * 0.055
 
       // 2) 국민연금 + 임대 종합소득세 (taxCalc 함수는 千원 기준)
       //    万원/月 → 千원/年 변환: × 12 × 10
@@ -227,13 +236,13 @@ export default function CashFlowDashboard() {
                 wrapperStyle={{ fontSize: 10, paddingTop: 4 }}
               />
 
-              {/* 누적 바 — 아래부터: nontax → savings → db → national → rental */}
+              {/* 누적 바 — 아래부터: 본인 비과세 → savings → DB합계 → national → rental */}
               <Bar dataKey="nontax"   name={BAR_LABELS.nontax}
                    stackId="a" fill={BAR_COLORS.nontax}   isAnimationActive={false} />
               <Bar dataKey="savings"  name={BAR_LABELS.savings}
                    stackId="a" fill={BAR_COLORS.savings}  isAnimationActive={false} />
-              <Bar dataKey="db"       name={BAR_LABELS.db}
-                   stackId="a" fill={BAR_COLORS.db}       isAnimationActive={false} />
+              <Bar dataKey="dbTotal"  name={BAR_LABELS.dbTotal}
+                   stackId="a" fill={BAR_COLORS.dbTotal}  isAnimationActive={false} />
               <Bar dataKey="national" name={BAR_LABELS.national}
                    stackId="a" fill={BAR_COLORS.national} isAnimationActive={false} />
               <Bar dataKey="rental"   name={BAR_LABELS.rental}
@@ -291,7 +300,7 @@ export default function CashFlowDashboard() {
           title="DB 퇴직연금 개시"
           items={[
             `+${(at65 ? Math.round(chartData.find(r=>r.age===61)?.db ?? 0) : 77)}만원/월`,
-            '61~80세 수령 (20년)',
+            'DB채권형 61~80세 수령',
             '건보 소득점수 증가',
           ]}
           color="emerald"
@@ -308,11 +317,11 @@ export default function CashFlowDashboard() {
         />
         <MilestoneCard
           year={2047} age={75}
-          title="⚠️ 이율보증형·노후적립 종료"
+          title="⚠️ 이율보증형(DB)·노후적립 종료"
           items={[
             '월 약 314만원 감소',
-            'DB 퇴직연금은 80세까지 지속',
-            '→ 81세 DB 종료 시 추가 68만↓',
+            'DB채권형은 80세까지 지속',
+            '우리아이 1·2는 자녀 양도 예정',
           ]}
           color="red"
         />

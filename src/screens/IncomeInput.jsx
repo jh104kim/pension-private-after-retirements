@@ -184,11 +184,11 @@ export default function IncomeInput() {
           value={`${totalAt65.toLocaleString('ko-KR')}만원`}
           sub="연금 + 임대 + 기타 합산 · 세전 추정"
         />
-        <KpiCard
-          title="연금 수령액 (65세)"
-          value={`${pension65.toLocaleString('ko-KR')}만원`}
-          sub="9개 상품 합산 · 세전 · 임대 제외"
-        />
+          <KpiCard
+            title="연금 수령액 (65세)"
+            value={`${pension65.toLocaleString('ko-KR')}만원`}
+            sub="우리아이 1·2 제외 · 세전 · 임대 제외"
+          />
         <KpiCard
           title="기타 소득 / 월 (65세)"
           value={`${otherIncome.toLocaleString('ko-KR')}만원`}
