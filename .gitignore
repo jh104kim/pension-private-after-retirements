@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# local env & secrets
+.env
+.env.local
+.env.*.local
+
+# editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# misc
+*.local
+
+# secrets / personal tokens (절대 커밋 금지)
+.env.txt
+*.env.txt
+
+# Claude Code 로컬 설정
+.claude/
