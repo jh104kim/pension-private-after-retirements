@@ -430,9 +430,14 @@ npx shadcn@latest add select slider switch separator table tooltip toggle-group
 # 6. Recharts + 유틸리티
 npm install recharts numeral clsx tailwind-merge lucide-react
 
-# 7. 개발 서버 실행
+# 7. 개발 서버 실행 (Vite only)
 npm run dev
 # → http://localhost:5173
+
+# 8. 챗봇 포함 로컬 실행 (Cloudflare Pages Functions)
+npm run build
+npm run dev:pages
+# → http://localhost:8788
 ```
 
 ---
@@ -444,15 +449,39 @@ npm run dev
 npm run build
 # → dist/ 폴더 생성
 
+# Cloudflare Pages Functions 포함 로컬 실행
+npm run dev:pages
+# → http://localhost:8788
+
 # 빌드 미리보기
 npm run preview
 # → http://localhost:4173
 ```
 
+### Cloudflare Pages 배포 기준
+
+| 항목 | 값 |
+|------|------|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Functions directory | `functions` |
+| 로컬 Pages dev | `npm run dev:pages` → `http://localhost:8788` |
+
+### AI 챗봇 환경변수
+
+| 변수 | 용도 | 노출 |
+|------|------|------|
+| `CLOUDFLARE_ACCOUNT_ID` | Workers AI Account ID | 서버 환경변수 |
+| `CLOUDFLARE_API_TOKEN` | Workers AI 호출 토큰 | 서버 환경변수 |
+| `CLOUDFLARE_AI_MODEL` | 기본 모델 (`@cf/meta/llama-3.1-8b-instruct`) | 서버 환경변수 |
+
+> `VITE_` 접두사로 토큰을 프론트엔드에 노출하지 않는다. 프론트는 `/api/chat`만 호출하고, `functions/api/chat.js`가 Cloudflare Workers AI REST API를 프록시한다.
+
 ### 정적 배포 옵션
 
 | 방법 | 명령 | 비고 |
 |------|------|------|
+| Cloudflare Pages | `npm run build` + Pages 배포 | Functions와 AI 챗봇 사용 가능 |
 | 로컬 파일 | `dist/index.html` 직접 열기 | 별도 서버 불필요 |
 | GitHub Pages | `gh-pages` 패키지 사용 | 무료 |
 | Vercel | `vercel deploy` | 자동 CI/CD |

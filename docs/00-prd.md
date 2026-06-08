@@ -16,6 +16,7 @@
 | 분석 기간 | 55세 ~ 90세 (36개 연령 포인트) |
 | 연금 상품 수 | 9개 (공적연금 1 + 세제적격 2 + 세제비적격 6) |
 | 기술 스택 | Vite 6 + React 18 + Tailwind CSS 3 + shadcn/ui + Recharts |
+| AI 챗봇 | Cloudflare Pages Functions + Workers AI (`/api/chat`) |
 | 뷰포트 | 1440 × 900 고정 (No Scroll) |
 | 세금·건보료 | **추정값** (국세청·건보공단 2024년 기준 근사치, 확정값 아님) |
 
@@ -30,6 +31,7 @@
 | 3 | IRP 분산 수령·국민연금 지연 수령 등 절세 시나리오의 효과를 수치로 비교할 수단이 없다 | ✅ TaxScenario |
 | 4 | 세금·건보료를 포함한 세후 실수령액을 나이별로 한눈에 볼 수 없다 | ✅ CashFlowDashboard |
 | 5 | 임대소득·금융소득 규모가 종합과세 기준을 초과하는지 즉시 판단하기 어렵다 | ✅ IncomeInput |
+| 6 | 앱 계산 결과를 자연어로 해석하고 리스크를 질문하기 어렵다 | ✅ ChatPanel + Cloudflare Workers AI |
 
 ---
 
@@ -40,6 +42,7 @@
 3. **건보료 시뮬레이터** — 임대소득·부동산 슬라이더로 건강보험료 실시간 추정
 4. **소득 리스크 판정** — 사적연금 1,200만원·임대소득 2,000만원·금융소득 2,000만원 기준 초과 여부 자동 표시
 5. **단일 뷰포트 완결** — 5개 탭 전체가 스크롤 없이 1440×900 내에서 완결
+6. **AI 해석 보조** — 현재 앱 컨텍스트를 기반으로 연금·세금·건보료 리스크를 추정 설명하는 오른쪽 챗봇 제공
 
 ---
 
@@ -76,6 +79,21 @@
 |------|------|
 | `PensionContext` | `income` / `assets` / `balances` 상태 + `cashFlowByAge` / `healthByAge` 파생 계산 |
 | 반응성 | IncomeInput에서 소득 변경 → CashFlowDashboard·TaxScenario·HealthInsurance 즉시 연동 |
+
+### 4-5. AI 챗봇
+
+| 파일 | 내용 | 상태 |
+|------|------|------|
+| `src/components/ChatPanel.jsx` | 오른쪽 고정 AI 챗봇 패널, 질문 입력·빠른 질문·응답 표시 | ✅ |
+| `src/services/aiChat.js` | `/api/chat` 호출 래퍼, 실패 메시지 처리 | ✅ |
+| `src/utils/buildChatContext.js` | 현재 앱 상태를 챗봇 프롬프트용 요약 컨텍스트로 변환 | ✅ |
+| `functions/api/chat.js` | Cloudflare Pages Function, Workers AI REST API 프록시 | ✅ |
+
+**로컬 실행 기준**:
+- 화면 개발만 확인: `npm run dev` → `http://localhost:5173`
+- 챗봇 포함 확인: `npm run build` 후 `npm run dev:pages` → `http://localhost:8788`
+- `5173`은 Vite 서버라서 Pages Function이 실행되지 않는다.
+- `8788`은 Wrangler Pages dev 서버라서 `/api/chat`과 AI 응답까지 확인 가능하다.
 
 ---
 
@@ -166,6 +184,19 @@
 | 피부양자 자격 탈락 | 소득 연 2,000만원 | ❌ 지역가입자 전환 확정 |
 | 금융소득 2,000만원 | 연 2,000만원 | ⚠ 금융소득 종합과세 |
 
+### 5-6. AI 챗봇 (`ChatPanel`)
+
+**목적**: 현재 앱의 연금·소득·자산·건보료 추정 결과를 자연어로 설명하고, 사용자의 질문에 추정 기반 답변 제공
+
+| 기능 | 내용 |
+|------|------|
+| 오른쪽 고정 패널 | 탭 화면을 가리지 않는 우측 overlay, 기본은 하단 버튼으로 접힘 |
+| 앱 컨텍스트 전달 | `PensionContext`의 소득·자산·현금흐름·건보료 요약을 AI에 전달 |
+| Cloudflare Workers AI | Pages Function `/api/chat`에서 Workers AI REST API 호출 |
+| 보안 구조 | API Token은 브라우저에 노출하지 않고 Function 환경변수에서 사용 |
+| 빠른 질문 | 65세 이후 리스크·피부양자 탈락·절세 우선순위 질문 제공 |
+| 안전 문구 | 세금·건보료는 추정, 확정 판단은 세무사·국민건강보험공단 확인 필요 |
+
 ---
 
 ## 6. 핵심 데이터 기준
@@ -251,6 +282,15 @@
 - 65 ~ 69세: 수령액 0원
 - 70세 이후: 정상 수령액 × 1.36 (36% 증액) *(추정, 실제 가산율은 공단 기준 확인)*
 
+### 7-7. AI 챗봇 호출
+
+- 프론트엔드: `sendChatMessage(message, context)` → `/api/chat`
+- 서버 프록시: `functions/api/chat.js`
+- 모델 기본값: `@cf/meta/llama-3.1-8b-instruct`
+- 환경변수: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_AI_MODEL`
+- 응답 원칙: 앱 컨텍스트 숫자 우선, 컨텍스트 밖 세율·절감액·자격 판단은 "확인 필요"로 안내
+- 실패 메시지: `AI 응답 생성에 실패했습니다. API 키와 모델명을 확인하세요.`
+
 ---
 
 ## 8. 제외 범위 (미구현)
@@ -266,6 +306,8 @@
 | 다중 사용자·공유 | 단일 사용자 전용 |
 | 자산 매각 시나리오 | 부동산 처분 효과 분석 미포함 |
 | 배우자 연금·소득 통합 | 사용자 본인 기준만 계산 |
+| 챗봇 대화 저장 | 현재 세션 화면 표시만 제공, 서버 저장 없음 |
+| 챗봇 답변 감사 로그 | MVP 범위 밖 |
 
 ---
 
@@ -279,6 +321,7 @@
 | 세금·건보료 "추정" 라벨 전면 표기 | 화면별 Badge / 주석 확인 |
 | `npm run build` 오류 없이 통과 | CI 빌드 결과 확인 |
 | 9개 상품 배열 길이 36, 합계 일치 | `pensionData.js` 배열 검증 |
+| 챗봇 실제 응답 확인 | `npm run build` → `npm run dev:pages` → `http://localhost:8788`에서 질문 전송 |
 
 ---
 
@@ -296,6 +339,9 @@
 | UX | 모바일 반응형 레이아웃 |
 | UX | 시나리오 파라미터 직접 편집 |
 | UX | PDF / 이미지 내보내기 |
+| AI | 챗봇 대화 히스토리 저장 |
+| AI | 답변 근거 문서 링크 및 계산식 펼쳐보기 |
+| AI | Cloudflare AI Gateway, rate limit, 사용량 모니터링 |
 | 세금 | 배우자 소득 합산 종합과세 시뮬레이션 |
 | 세금 | 연도별 세금 신고 체크리스트 |
 

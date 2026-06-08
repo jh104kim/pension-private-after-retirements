@@ -42,6 +42,7 @@ IRP 분산 수령·국민연금 지연 수령 조합에 따른 세금·건보료
 | 차트 | Recharts |
 | 상태 관리 | React Context API |
 | UI 컴포넌트 | Radix UI (Slider·Tabs·Toggle 등) |
+| AI 챗봇 | Cloudflare Pages Functions + Workers AI |
 
 ---
 
@@ -57,11 +58,42 @@ npm run dev
 # 프로덕션 빌드 → dist/
 npm run build
 
+# Cloudflare Pages Functions 포함 로컬 실행 (http://localhost:8788)
+# AI 챗봇 실제 응답 확인용
+npm run dev:pages
+
 # 빌드 결과 미리보기 (http://localhost:4173)
 npm run preview
 ```
 
 > **권장 뷰포트**: 1440 × 900 (No Scroll 설계 — 모바일 미지원)
+
+---
+
+## Cloudflare 배포 및 AI 챗봇
+
+이 MVP의 AI 챗봇은 화면 오른쪽 고정 패널로 제공되며, 프론트엔드는 `/api/chat`만 호출합니다. Cloudflare API Token은 브라우저에 노출하지 않고 `functions/api/chat.js`의 Pages Function에서 Workers AI REST API를 호출합니다.
+
+### Cloudflare Pages 설정
+
+| 항목 | 값 |
+|------|-----|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Functions directory | `functions` |
+| Local chatbot URL | `http://localhost:8788` (`npm run dev:pages`) |
+
+### 환경변수
+
+Cloudflare Pages 프로젝트 환경변수 또는 로컬 `.env`에 아래 값을 설정합니다.
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_AI_MODEL=@cf/meta/llama-3.1-8b-instruct
+```
+
+> `VITE_` 접두사 환경변수는 브라우저 번들에 노출될 수 있으므로 실제 배포에서는 사용하지 않는 것을 권장합니다.
 
 ---
 

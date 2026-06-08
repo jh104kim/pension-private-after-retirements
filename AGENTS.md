@@ -20,6 +20,10 @@ npm run dev
 # 프로덕션 빌드 → dist/
 npm run build
 
+# Cloudflare Pages Functions 포함 로컬 실행 (http://localhost:8788)
+# 챗봇 실제 응답 확인 시 사용
+npm run dev:pages
+
 # 빌드 결과 로컬 미리보기 (http://localhost:4173)
 npm run preview
 ```
@@ -46,6 +50,10 @@ src/utils/
   scenarioCalc.js          ← 4개 절세 시나리오 비교
     ↓
 src/screens/ (5개 탭 화면)
+    ↓
+src/components/ChatPanel.jsx  ← 오른쪽 AI 챗봇 패널
+    ↓
+functions/api/chat.js         ← Cloudflare Pages Function, Workers AI REST API 프록시
 ```
 
 ### 단위 규칙 — 반드시 준수
@@ -69,12 +77,44 @@ src/screens/ (5개 탭 화면)
 
 ---
 
+## AI 챗봇 구조
+
+| 파일 | 역할 |
+|------|------|
+| `src/components/ChatPanel.jsx` | 오른쪽 고정 챗봇 UI, 빠른 질문, 응답 표시 |
+| `src/services/aiChat.js` | `/api/chat` 호출 래퍼 |
+| `src/utils/buildChatContext.js` | `PensionContext` 데이터를 AI 프롬프트 컨텍스트로 요약 |
+| `functions/api/chat.js` | Cloudflare Workers AI REST API 프록시 |
+
+### 챗봇 실행 포트
+
+| 포트 | 명령 | 용도 |
+|------|------|------|
+| `5173` | `npm run dev` | Vite 화면 개발. `/api/chat` Function 미실행 |
+| `8788` | `npm run build` 후 `npm run dev:pages` | Cloudflare Pages Functions 포함. 실제 챗봇 응답 확인 |
+| `4173` | `npm run preview` | 정적 빌드 미리보기. Function 미실행 |
+
+### 챗봇 환경변수
+
+`.env` 또는 Cloudflare Pages 환경변수에 아래 서버 변수를 둔다.
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_AI_MODEL=@cf/meta/llama-3.1-8b-instruct
+```
+
+`VITE_` 접두사로 API Token을 프론트엔드에 노출하지 않는다. 프론트엔드는 `/api/chat`만 호출하고 토큰은 `functions/api/chat.js`에서만 사용한다.
+
+---
+
 ## 핵심 설계 제약 — 변경 금지
 
 1. **No Scroll**: `body { overflow: hidden; height: 100vh; }` — 모든 화면은 단일 뷰포트(1440×900)에 완결. 스크롤 추가 금지.
 2. **shadcn/ui 전용**: 커스텀 CSS 최소화. UI 컴포넌트는 `src/components/ui/` 아래 shadcn 방식으로만 추가.
 3. **Recharts 전용**: 차트 라이브러리 혼용 금지.
 4. **세금·건보료는 추정값 표시**: 계산 결과 UI에 반드시 "추정" 또는 리스크 레이블 병기.
+5. **챗봇 답변은 추정 보조**: 앱 컨텍스트 기반 설명만 제공하며 확정 세무 자문·건보 자격 확정 판단을 하지 않는다.
 
 ---
 

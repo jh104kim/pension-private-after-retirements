@@ -5,6 +5,7 @@ import PensionInput      from '@/screens/PensionInput'
 import TaxScenario       from '@/screens/TaxScenario'
 import HealthInsurance   from '@/screens/HealthInsurance'
 import IncomeInput       from '@/screens/IncomeInput'
+import ChatPanel         from '@/components/ChatPanel'
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
             <TabsContent value="tax"      className="h-full m-0"><TaxScenario /></TabsContent>
           </div>
         </Tabs>
+        <ChatPanel />
       </div>
     </PensionProvider>
   )
