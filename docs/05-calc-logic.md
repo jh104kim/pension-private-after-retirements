@@ -25,22 +25,22 @@
 
 | 수령 나이 | 세율 (소득세 + 지방소득세) | 적용 조건 |
 |------|------|------|
-| 55 ~ 69세 | **5.5%** | 연 1,200만원 이하 |
-| 70 ~ 79세 | **4.4%** | 연 1,200만원 이하 |
-| 80세 이상 | **3.3%** | 연 1,200만원 이하 |
-| 모든 나이 | **16.5%** (선택적 분리과세) | 연 1,200만원 초과 시 |
+| 55 ~ 69세 | **5.5%** | 연 1,500만원 이하 |
+| 70 ~ 79세 | **4.4%** | 연 1,500만원 이하 |
+| 80세 이상 | **3.3%** | 연 1,500만원 이하 |
+| 모든 나이 | **16.5%** (선택적 분리과세) | 연 1,500만원 초과 시 |
 
-#### 1,200만원 분기점 판단
+#### 1,500만원 분기점 판단
 
 ```
 연 과세 사적연금 = 연금저축 수령액 + IRP 인출액
 (DB 퇴직연금은 별도 퇴직소득세 적용 — 합산 제외)
 
-if (연 과세 사적연금 <= 12_000천원):
+if (연 과세 사적연금 <= 15_000천원):
     세금 = 연 과세 사적연금 × 나이별 세율
     → 분리과세 완납 (종합소득세 미포함)
 
-if (연 과세 사적연금 > 12_000천원):
+if (연 과세 사적연금 > 15_000천원):
     A안: 종합과세 (다른 소득과 합산 → §1-3 종합소득세 적용)
     B안: 16.5% 분리과세 (선택)
     → A·B 중 세금이 적은 방향 선택
@@ -56,14 +56,14 @@ if (연 과세 사적연금 > 12_000천원):
  * @returns {{ tax: number, method: 'separate' | 'comprehensive' | 'flat16.5' }}
  */
 function privatePensionTax(annualQualified, age, otherTaxableIncome) {
-  const THRESHOLD = 12_000 // 천원
+  const THRESHOLD = 15_000 // 천원 (2024년 1,200만→1,500만 상향)
 
   if (annualQualified <= THRESHOLD) {
     const rate = age >= 80 ? 0.033 : age >= 70 ? 0.044 : 0.055
     return { tax: annualQualified * rate, method: 'separate' }
   }
 
-  // 1,200만 초과: A안 vs B안 비교
+  // 1,500만 초과: A안 vs B안 비교
   const taxA = comprehensiveIncomeTax(annualQualified + otherTaxableIncome)
              - comprehensiveIncomeTax(otherTaxableIncome) // 증가분
   const taxB = annualQualified * 0.165
@@ -82,8 +82,8 @@ function privatePensionTax(annualQualified, age, otherTaxableIncome) {
 | IRP (시점 미정) | 사용자 설정 | 5.5% | 변동 |
 | 합계 (기본) | 2,377천원 | — | 131천원 |
 
-> ✅ 연금저축 단독: 237.7만원 < 1,200만원 → 분리과세 유지  
-> ⚠️ IRP 추가 인출 시: 합산액 1,200만원 초과 여부 항상 체크
+> ✅ 연금저축 단독: 237.7만원 < 1,500만원 → 분리과세 유지  
+> ⚠️ IRP 추가 인출 시: 합산액 1,500만원 초과 여부 항상 체크
 
 ---
 
@@ -560,7 +560,7 @@ function dependentEligibility(annualIncome /* 천원 */, realEstateValue /* 천�
 | ID | 이름 | 핵심 변수 |
 |------|------|------|
 | `current` | 현재 계획 | 엑셀 기준 그대로 수령 |
-| `spread` | 분산 수령 | 세제적격 연 1,200만원 이하 유지, IRP 65세 이후 분산 |
+| `spread` | 분산 수령 | 세제적격 연 1,500만원 이하 유지, IRP 65세 이후 분산 |
 | `delayed` | 지연 수령 | 국민연금 70세 지연 (+36%), 65~70세 IRP로 보완 |
 | `optimal` | 최적 조합 | spread + delayed 결합 |
 
@@ -587,7 +587,7 @@ function calcScenario(scenario) {
     }
 
     if (scenario === 'spread' || scenario === 'optimal') {
-      // IRP 인출: 65세 이전 연 1,200만원 이하 유지
+      // IRP 인출: 65세 이전 연 1,500만원 이하 유지
       // (연금저축 237만 + IRP 962만 = 1,199만 → 분리과세 유지)
       if (age < 65) {
         pension.irp = age >= 57 ? 9_620 : 0  // 천원/년
