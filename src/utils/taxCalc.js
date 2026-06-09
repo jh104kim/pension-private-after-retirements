@@ -46,11 +46,11 @@ export function pensionIncomeDeduction(annualPension) {
 /**
  * @param {number} annualQualified       세제적격 연간 수령액 합계 (천원)
  * @param {number} age                   수령 나이
- * @param {number} otherTaxableIncome    기타 종합소득 과세분 (천원), 1,200만 초과 시 사용
+ * @param {number} otherTaxableIncome    기타 종합소득 과세분 (천원), 1,500만 초과 시 사용
  * @returns {{ tax: number, method: string }}
  */
 export function privatePensionTax(annualQualified, age, otherTaxableIncome = 0) {
-  const THRESHOLD = 12_000  // 1,200만원 (천원)
+  const THRESHOLD = 15_000  // 1,500만원 (천원, 2024년 상향)
   if (annualQualified <= 0) return { tax: 0, method: 'none' }
 
   if (annualQualified <= THRESHOLD) {
@@ -58,7 +58,7 @@ export function privatePensionTax(annualQualified, age, otherTaxableIncome = 0) 
     return { tax: Math.round(annualQualified * rate), method: 'separate' }
   }
 
-  // 1,200만원 초과: A안(종합과세 증가분) vs B안(16.5% 분리)
+  // 1,500만원 초과: A안(종합과세 증가분) vs B안(16.5% 분리)
   const taxA = comprehensiveIncomeTax(annualQualified + otherTaxableIncome)
              - comprehensiveIncomeTax(otherTaxableIncome)
   const taxB = Math.round(annualQualified * 0.165)

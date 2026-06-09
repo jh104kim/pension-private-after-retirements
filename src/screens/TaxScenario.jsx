@@ -34,7 +34,7 @@ const TAX_COLORS = {
 
 // ── 절세 전략 목록 (02-시나리오.md §8) ───────────────────────
 const STRATEGIES = [
-  { id: 'T1', text: '세제적격 1,200만 이하 유지',  stars: 5, badge: '필수',  badgeCls: 'border-red-200   text-red-600   bg-red-50'   },
+  { id: 'T1', text: '세제적격 1,500만 이하 유지',  stars: 5, badge: '필수',  badgeCls: 'border-red-200   text-red-600   bg-red-50'   },
   { id: 'T2', text: '비과세 상품 10년+ 유지 확인', stars: 5, badge: '필수',  badgeCls: 'border-red-200   text-red-600   bg-red-50'   },
   { id: 'T3', text: '국민연금 70세 연기 수령',      stars: 4, badge: '권장',  badgeCls: 'border-blue-200  text-blue-600  bg-blue-50'  },
   { id: 'T4', text: 'IRP 57세부터 분산 인출',       stars: 4, badge: '권장',  badgeCls: 'border-blue-200  text-blue-600  bg-blue-50'  },
@@ -161,7 +161,7 @@ export default function TaxScenario() {
 
         // ── 세제적격 합산 (천원/年) ──────────────────────────
         const savingsAnnual = PENSION_ANNUAL.savings[i]
-        // 분산: 57~65세 미만에 IRP 9,620千원/年 추가 → 합계 ≤12,000
+        // 분산: 57~65세 미만에 IRP 9,620千원/年 추가 → 합계 ≤15,000 (분리과세 한도)
         const irpAnnual = (id === 'spread' || id === 'optimal') && age >= 57 && age < 65
           ? 9_620 : 0
         const qualifiedAnnual = savingsAnnual + irpAnnual  // 천원/年
