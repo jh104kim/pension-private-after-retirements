@@ -7,6 +7,7 @@ import HealthInsurance   from '@/screens/HealthInsurance'
 import IncomeInput       from '@/screens/IncomeInput'
 import ChatPanel         from '@/components/ChatPanel'
 import PensionSidebar    from '@/components/PensionSidebar'
+import KnowledgeHub      from '@/screens/KnowledgeHub'
 
 export default function App() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
               <TabsTrigger value="cashflow" className="text-sm">현금흐름</TabsTrigger>
               <TabsTrigger value="health"   className="text-sm">건강보험</TabsTrigger>
               <TabsTrigger value="tax"      className="text-sm">절세 시나리오</TabsTrigger>
+              <TabsTrigger value="knowledge" className="text-sm">학습·지식</TabsTrigger>
             </TabsList>
 
             <div className="flex-1 overflow-hidden">
@@ -45,6 +47,7 @@ export default function App() {
               <TabsContent value="cashflow" className="h-full m-0"><CashFlowDashboard /></TabsContent>
               <TabsContent value="health"   className="h-full m-0"><HealthInsurance /></TabsContent>
               <TabsContent value="tax"      className="h-full m-0"><TaxScenario /></TabsContent>
+              <TabsContent value="knowledge" className="h-full m-0"><KnowledgeHub /></TabsContent>
             </div>
           </Tabs>
 
