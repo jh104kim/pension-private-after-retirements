@@ -62,14 +62,23 @@ export async function runCloudflareChat({ accountId, apiToken, model, context, m
   }
 
   const endpoint = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`
-  const upstream = await doFetch(endpoint, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ messages: buildMessages(context, message) }),
-  })
+
+  let upstream
+  try {
+    upstream = await doFetch(endpoint, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ messages: buildMessages(context, message) }),
+    })
+  } catch (e) {
+    const err = new Error('Cloudflare API에 연결하지 못했습니다(네트워크/프록시). 회사망인 경우 HTTPS_PROXY 환경변수가 설정돼 있어야 합니다. 원인: ' + (e?.message || String(e)))
+    err.code = 'NETWORK'
+    err.status = 502
+    throw err
+  }
 
   const data = await upstream.json().catch(() => null)
   if (!upstream.ok || data?.success === false) {
