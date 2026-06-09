@@ -438,7 +438,7 @@ function IncomeField({ label, value, onChange, sub, placeholder = '0' }) {
 // 리스크 체크리스트
 function RiskChecklist() {
   const risks = [
-    { ok: true,  text: '사적연금 1,200만원 이하 → 분리과세 유지 가능' },
+    { ok: true,  text: '사적연금 1,500만원 이하 → 분리과세 유지 가능' },
     { ok: false, text: '임대소득 3,600만원 > 2,000만원 → 종합과세 대상' },
     { ok: false, text: '피부양자 탈락 확정 → 지역가입자 전환' },
     { ok: true,  text: '변액연금 비과세 요건 충족 가정 (확인 필요)' },
@@ -778,7 +778,7 @@ export default function TaxScenario() {
       <div className="flex gap-4 h-20 shrink-0">
         <RecommendCard
           icon="🏆" title="추천: 분산+지연 수령"
-          desc="국민연금 70세 지연 + 사적연금 1,200만 이하 유지 → 연 50~100만원 절세 효과"
+          desc="국민연금 70세 지연 + 사적연금 1,500만 이하 유지 → 연 50~100만원 절세 효과"
           color="amber" />
         <RecommendCard
           icon="🛡️" title="보수 대안: 현재 계획 유지"
@@ -814,10 +814,10 @@ function NetIncomeLineChart({ active, data }) {
 
 // 전략 테이블
 const STRATEGIES = [
-  { name: '사적연금 1,200만원 이하 분리과세 유지', range: '57세~', effect: '5.5% 저율 유지', priority: 5, status: 'apply' },
+  { name: '사적연금 1,500만원 이하 분리과세 유지', range: '57세~', effect: '5.5% 저율 유지', priority: 5, status: 'apply' },
   { name: '세제비적격 비과세 요건 확인',           range: '55세~', effect: '세금 0원',      priority: 5, status: 'apply' },
   { name: '국민연금 지연 수령 (70세)',             range: '65→70', effect: '+816만원/년',  priority: 4, status: 'review' },
-  { name: 'IRP 분산 인출',                        range: '60~75', effect: '1,200만 이하',  priority: 4, status: 'review' },
+  { name: 'IRP 분산 인출',                        range: '60~75', effect: '1,500만 이하',  priority: 4, status: 'review' },
   { name: '인출 순서 최적화 (비과세 먼저)',         range: '57세~', effect: '과세 이연',    priority: 4, status: 'apply' },
   { name: '임대소득 경비 최대화',                  range: '매년',  effect: '과세표준 감소', priority: 3, status: 'check' },
 ]

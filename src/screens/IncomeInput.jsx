@@ -348,13 +348,13 @@ export default function IncomeInput() {
             <CardContent className="px-4 pb-2 flex-1 overflow-hidden">
               <div className="divide-y">
 
-                {/* T1 사적연금 1,200만원 분기점 */}
+                {/* T1 사적연금 1,500만원 분기점 */}
                 <RiskItem
                   icon="💰"
-                  title={`사적연금 1,200만원 분기점 — 연금저축 연 ${savingsAnnualMw}만원`}
+                  title={`사적연금 1,500만원 분기점 — 연금저축 연 ${savingsAnnualMw}만원`}
                   sub="현재 분리과세 유지 · IRP 인출 합산 시 한도 초과 여부 재확인 필요 (확인 필요)"
-                  statusType={savingsAnnualMw <= 1_200 ? 'ok' : 'warn'}
-                  statusLabel={savingsAnnualMw <= 1_200 ? '✅ 분리과세 유지' : '⚠ 합산 확인'}
+                  statusType={savingsAnnualMw <= 1_500 ? 'ok' : 'warn'}
+                  statusLabel={savingsAnnualMw <= 1_500 ? '✅ 분리과세 유지' : '⚠ 합산 확인'}
                 />
 
                 {/* T2 임대소득 종합과세 */}

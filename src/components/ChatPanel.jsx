@@ -66,8 +66,9 @@ export default function ChatPanel() {
           text: `${answer}\n\n※ 앱 데이터 기반 추정 설명이며, 확정 세무·건강보험 판단은 세무사 및 국민건강보험공단 확인이 필요합니다.`,
         },
       ])
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', text: AI_CHAT_ERROR_MESSAGE }])
+    } catch (err) {
+      const text = err instanceof Error && err.message ? err.message : AI_CHAT_ERROR_MESSAGE
+      setMessages(prev => [...prev, { role: 'assistant', text: `⚠️ ${text}` }])
     } finally {
       setLoading(false)
       requestAnimationFrame(() => inputRef.current?.focus())
@@ -174,7 +175,7 @@ export default function ChatPanel() {
           </form>
 
           <p className="text-[10px] text-muted-foreground leading-snug">
-            배포 전 Cloudflare Worker/Pages Function 프록시에서 토큰을 관리해야 합니다. 현재 UI는 /api/chat 프록시만 호출합니다.
+            응답에는 Cloudflare 자격증명이 필요합니다. 프로젝트 루트 <code>.env</code>에 <code>CLOUDFLARE_ACCOUNT_ID</code>·<code>CLOUDFLARE_API_TOKEN</code>(Workers AI 권한)을 설정한 뒤 dev 서버를 재시작하세요.
           </p>
         </div>
       </CardContent>
