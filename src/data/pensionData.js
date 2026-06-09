@@ -121,6 +121,88 @@ export const MY_PENSION_TOTAL = AGES.map((_, i) =>
 )
 
 /**
+ * 연금 상품 메타데이터 — 사이드바/뷰 컴포넌트에서 사용
+ * lifetimeTotal: 엑셀 소계 기준 (단위: 천원)
+ * balanceKey: userData.balances의 키 (없으면 null)
+ */
+export const PENSION_PRODUCTS = [
+  // ── 세제적격 계좌 ──────────────────────────────────────────
+  {
+    key: 'db', name: 'DB퇴직연금', institution: '삼성증권',
+    section: 'qualified',
+    startAge: 61, endAge: 80,
+    lifetimeTotal: 185140,
+    balanceKey: 'db',
+  },
+  {
+    key: 'guaranteed', name: '이율보증형', institution: '삼성생명',
+    section: 'qualified',
+    startAge: 55, endAge: 74,
+    lifetimeTotal: 496680,
+    balanceKey: null,
+  },
+  {
+    key: 'irp', name: 'IRP', institution: '—',
+    section: 'qualified',
+    startAge: null, endAge: null,
+    lifetimeTotal: null,
+    balanceKey: 'irp',
+  },
+  {
+    key: 'savings', name: '연금저축골드', institution: '삼성생명',
+    section: 'qualified',
+    startAge: 56, endAge: 90,
+    lifetimeTotal: 83207,
+    balanceKey: 'savings',
+  },
+  // ── 비과세 계좌 ────────────────────────────────────────────
+  {
+    key: 'nohup', name: '노후적립', institution: '삼성생명',
+    section: 'nontax',
+    startAge: 55, endAge: 74,
+    lifetimeTotal: 276115,
+    balanceKey: null,
+  },
+  {
+    key: 'indexUp', name: '인덱스Up', institution: '삼성생명',
+    section: 'nontax',
+    startAge: 65, endAge: 90,
+    lifetimeTotal: 305832,
+    balanceKey: null,
+  },
+  {
+    key: 'smartTop', name: '스마트Top', institution: '삼성생명',
+    section: 'nontax',
+    startAge: 65, endAge: 90,
+    lifetimeTotal: 366658,
+    balanceKey: null,
+  },
+  // ── 자녀 양도 예정 ─────────────────────────────────────────
+  {
+    key: 'ourChild1', name: '우리아이(1)', institution: '삼성생명',
+    section: 'child',
+    startAge: 60, endAge: 90,
+    lifetimeTotal: 165608,
+    balanceKey: null,
+  },
+  {
+    key: 'ourChild2', name: '우리아이(2)', institution: '삼성생명',
+    section: 'child',
+    startAge: 60, endAge: 90,
+    lifetimeTotal: 158028,
+    balanceKey: null,
+  },
+  // ── 공적연금 ───────────────────────────────────────────────
+  {
+    key: 'national', name: '국민연금', institution: '국민연금공단',
+    section: 'public',
+    startAge: 65, endAge: 90,
+    lifetimeTotal: 850759,
+    balanceKey: null,
+  },
+]
+
+/**
  * 차트용 나이별 데이터 배열
  * 단위: 만원/월 (내부 계산 천원/년 → ÷10 ÷12)
  * 임대소득은 Context에서 주입
